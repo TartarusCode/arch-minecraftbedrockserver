@@ -26,7 +26,7 @@ jobs:
 
       - name: Detect Minecraft Bedrock Versions
         id: detect
-        uses: TartarusCode/detect-bedrock-version@v1.0.1
+        uses: TartarusCode/detect-bedrock-version@v1.0.2
         with:
           output-file: 'versions.json'
 
