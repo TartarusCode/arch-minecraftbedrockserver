@@ -9,6 +9,7 @@ on:
 permissions:
   contents: write
   packages: write
+  actions: write
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -112,6 +113,8 @@ jobs:
           context: .
           platforms: linux/amd64
           push: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
           build-args: |
             APPNAME=${{ steps.ids.outputs.app_name }}
             RELEASETAG=${{ needs.detect-versions.outputs.stable-version }}

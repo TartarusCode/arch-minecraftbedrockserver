@@ -2,38 +2,21 @@ FROM ghcr.io/binhex/arch-base:latest
 LABEL org.opencontainers.image.authors="binhex"
 LABEL org.opencontainers.image.source="https://github.com/binhex/arch-minecraftbedrockserver"
 
-# app name from buildx arg
 ARG APPNAME
-
-# release tag name from buildx arg
 ARG RELEASETAG
-
-# arch from buildx --platform, e.g. amd64
 ARG TARGETARCH
 
-# additional files
-##################
+ADD build/root/install-packages.sh /root/install-packages.sh
+RUN chmod +x /root/install-packages.sh && \
+	/bin/bash /root/install-packages.sh "${APPNAME}" "${TARGETARCH}"
 
-# add supervisor conf file for app
-ADD build/*.conf /etc/supervisor/conf.d/
-
-# add install bash script
-ADD build/root/*.sh /root/
-
-# add run bash script
-ADD run/nobody/*.sh /home/nobody/
-
-# install app
-#############
-
-# make executable and run bash scripts to install app
-RUN chmod +x /root/*.sh && \
+ADD build/root/install.sh /root/install.sh
+RUN chmod +x /root/install.sh && \
 	/bin/bash /root/install.sh "${APPNAME}" "${RELEASETAG}" "${TARGETARCH}"
 
-# healthcheck
-#############
+ADD build/*.conf /etc/supervisor/conf.d/
+ADD run/nobody/*.sh /home/nobody/
 
-# ensure internet connectivity, used primarily when sharing network with other containers
 HEALTHCHECK \
 	--interval=2m \
 	--timeout=2m \
@@ -41,8 +24,4 @@ HEALTHCHECK \
 	--start-period=2m \
   CMD /usr/local/bin/system/scripts/docker/healthcheck.sh || exit 1
 
-# set permissions
-#################
-
-# run script to set uid, gid and permissions
 CMD ["/bin/bash", "init.sh"]
